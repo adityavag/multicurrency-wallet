@@ -26,4 +26,13 @@ public class GlobalExceptionHandler {
                 java.time.LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
+
+    @ExceptionHandler(WalletAlreadyException.class)
+    public ResponseEntity<ErrorResponse> handleWalletAlreadyExistsException(WalletAlreadyException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                java.time.LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }

@@ -2,6 +2,9 @@ package com.ad.fx.wallet.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import com.ad.fx.wallet.enums.Currency;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -27,8 +30,4 @@ public class Wallet {
     private Currency currency;
     private BigDecimal balance;
     private LocalDateTime createdAt;
-}
-
-enum Currency {
-    AUD, USD, GBP, INR
 }
