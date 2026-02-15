@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ad.fx.wallet.dto.CreateWalletRequest;
+import com.ad.fx.wallet.dto.DepositRequest;
 import com.ad.fx.wallet.dto.WalletResponse;
 import com.ad.fx.wallet.model.User;
 import com.ad.fx.wallet.repository.UserRepository;
@@ -51,6 +52,13 @@ public class WalletController {
         Long userId = getCurrentUserId();
         WalletResponse wallet = walletService.getWalletById(id, userId);
         return ResponseEntity.ok(wallet);
+    }
+
+    @PostMapping("/deposit")
+    public ResponseEntity<WalletResponse> deposit(@Valid @RequestBody DepositRequest request) {
+        Long userId = getCurrentUserId();
+        WalletResponse response = walletService.deposit(userId, request);
+        return ResponseEntity.ok(response);
     }
 
     private Long getCurrentUserId() {
