@@ -1,18 +1,24 @@
 package com.ad.fx.wallet.service.impl;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+
 import com.ad.fx.wallet.dto.CreateWalletRequest;
 import com.ad.fx.wallet.dto.DepositRequest;
 import com.ad.fx.wallet.dto.WalletResponse;
+import com.ad.fx.wallet.enums.TransactionType;
 import com.ad.fx.wallet.exception.UnauthorisedWalletAccessException;
 import com.ad.fx.wallet.exception.WalletAlreadyException;
 import com.ad.fx.wallet.exception.WalletNotFoundException;
+import com.ad.fx.wallet.model.Transaction;
 import com.ad.fx.wallet.model.Wallet;
+import com.ad.fx.wallet.repository.TransactionRepository;
 import com.ad.fx.wallet.repository.WalletRepository;
 import com.ad.fx.wallet.service.WalletService;
 
@@ -21,6 +27,9 @@ public class WalletServiceImpl implements WalletService {
 
     @Autowired
     private WalletRepository walletRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     @Override
     public WalletResponse createWallet(Long userId, CreateWalletRequest request) {
@@ -57,12 +66,22 @@ public class WalletServiceImpl implements WalletService {
                 .orElseThrow(() -> new WalletNotFoundException("Wallet Not Found"));
 
         if (!wallet.getUserId().equals(userId)) {
-            throw new UnauthorisedWalletAccessException("Access Forbidden");    
+            throw new UnauthorisedWalletAccessException("Access Forbidden");
         }
 
-        BigDecimal newBalance = wallet.getBalance().add(request.amount());
-        wallet.setBalance(newBalance);
+        wallet.setBalance(wallet.getBalance().add(request.amount()));
         Wallet updatedWallet = walletRepository.save(wallet);
+
+        Transaction transaction = new Transaction();
+        transaction.setToWalletId(wallet.getId());
+        transaction.setAmount(request.amount());
+        transaction.setSourceCurrency(wallet.getCurrency());
+        transaction.setTargetCurrency(wallet.getCurrency());
+        transaction.setFxRate(BigDecimal.ONE);
+        transaction.setType(TransactionType.DEPOSIT);
+        transaction.setStatus(com.ad.fx.wallet.enums.TransactionStatus.COMPLETED);
+        transaction.setTimestamp(LocalDateTime.now());
+        transactionRepository.save(transaction);
         return mapToWalletResponse(updatedWallet);
     }
 

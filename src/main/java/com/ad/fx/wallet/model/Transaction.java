@@ -3,7 +3,10 @@ package com.ad.fx.wallet.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.springframework.transaction.TransactionStatus;
+
 import com.ad.fx.wallet.enums.Currency;
+import com.ad.fx.wallet.enums.TransactionType;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -32,12 +35,10 @@ public class Transaction {
     private Currency sourceCurrency;
     @Enumerated(EnumType.STRING)
     private Currency targetCurrency;
-    private BigDecimal exchangeRate;
+    private BigDecimal fxRate;
     private LocalDateTime timestamp;
     @Enumerated(EnumType.STRING)
     private TransactionType type;
-}
-
-enum TransactionType {
-    DEPOSIT, TRANSFER
+    @Enumerated(EnumType.STRING)
+    private com.ad.fx.wallet.enums.TransactionStatus status;
 }

@@ -44,6 +44,7 @@ public class GlobalExceptionHandler {
                 java.time.LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
+
     @ExceptionHandler(UnauthorisedWalletAccessException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorisedWalletAccessException(UnauthorisedWalletAccessException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -51,5 +52,23 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 java.time.LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ResponseEntity<ErrorResponse> handleInsufficientBalanceException(InsufficientBalanceException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                java.time.LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                java.time.LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 }
