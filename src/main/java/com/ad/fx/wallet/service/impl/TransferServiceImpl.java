@@ -62,11 +62,30 @@ public class TransferServiceImpl implements TransferService {
                 .orElseThrow(() -> new WalletNotFoundException(
                         "Recipient does not have a " + fromWallet.getCurrency() + " wallet"));
 
+        if (request.currency() != null) {
+            toWallet = walletRepository.findByUserIdAndCurrency(
+                    recipient.getId(),
+                    request.currency()).orElseThrow(
+                            () -> new WalletNotFoundException(
+                                    "Recipient doesn't have a " + request.currency() + " wallet"));
+        } else {
+            toWallet = walletRepository.findByUserIdAndCurrency(
+                    recipient.getId(),
+                    fromWallet.getCurrency()).orElseThrow(
+                            () -> new WalletNotFoundException(
+                                    "Recipient doesn't have a " + fromWallet.getCurrency() +
+                                            " wallet. Please specify targetCurrency."));
+        }
+
         if (fromWallet.getId().equals(toWallet.getId())) {
             throw new IllegalArgumentException("Cannot transfer to same wallet");
         }
 
-        return processSameCurrencyTransfer(fromWallet, toWallet, request);
+        if (fromWallet.getCurrency().equals(toWallet.getCurrency())) {
+            return processSameCurrencyTransfer(fromWallet, toWallet, request);
+        } else {
+            return processCrossCurrencyTransfer(fromWallet, toWallet, request);
+        }
     }
 
     private TransferResponse processSameCurrencyTransfer(Wallet fromWallet, Wallet toWallet, TransferRequest request) {
@@ -90,6 +109,32 @@ public class TransferServiceImpl implements TransferService {
         Transaction savedTransaction = transactionRepository.save(transaction);
 
         return mapToResponse(savedTransaction, request.amount());
+    }
+
+    private TransferResponse processCrossCurrencyTransfer(Wallet fromWallet, Wallet toWallet, TransferRequest request) {
+
+        BigDecimal fxRate = fxRateService.getRate(fromWallet.getCurrency(), toWallet.getCurrency());
+        BigDecimal convertedAmount = request.amount().multiply(fxRate);
+        fromWallet.setBalance(fromWallet.getBalance().subtract(request.amount()));
+        walletRepository.save(fromWallet);
+
+        toWallet.setBalance(toWallet.getBalance().add(convertedAmount));
+        walletRepository.save(toWallet);
+
+        Transaction transaction = new Transaction();
+        transaction.setFromWalletId(fromWallet.getId());
+        transaction.setToWalletId(toWallet.getId());
+        transaction.setAmount(request.amount());
+        transaction.setSourceCurrency(fromWallet.getCurrency());
+        transaction.setTargetCurrency(toWallet.getCurrency());
+        transaction.setFxRate(fxRate);
+        transaction.setType(TransactionType.TRANSFER);
+        transaction.setStatus(TransactionStatus.COMPLETED);
+        transaction.setTimestamp(LocalDateTime.now());
+
+        Transaction savedTransaction = transactionRepository.save(transaction);
+
+        return mapToResponse(savedTransaction, convertedAmount);
     }
 
     private TransferResponse mapToResponse(Transaction transaction, BigDecimal convertedAmount) {
