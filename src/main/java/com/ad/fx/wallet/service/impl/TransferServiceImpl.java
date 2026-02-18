@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.ad.fx.wallet.dto.TransferRequest;
 import com.ad.fx.wallet.dto.TransferResponse;
 import com.ad.fx.wallet.enums.TransactionStatus;

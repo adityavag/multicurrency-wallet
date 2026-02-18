@@ -3,8 +3,6 @@ package com.ad.fx.wallet.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import org.springframework.transaction.TransactionStatus;
-
 import com.ad.fx.wallet.enums.Currency;
 import com.ad.fx.wallet.enums.TransactionType;
 

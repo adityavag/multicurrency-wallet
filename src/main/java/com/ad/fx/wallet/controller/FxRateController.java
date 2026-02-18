@@ -3,8 +3,6 @@ package com.ad.fx.wallet.controller;
 import com.ad.fx.wallet.enums.Currency;
 import com.ad.fx.wallet.service.FxRateService;
 
-import lombok.Getter;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
