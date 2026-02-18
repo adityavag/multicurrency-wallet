@@ -7,8 +7,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionStatus;
-
 import com.ad.fx.wallet.dto.CreateWalletRequest;
 import com.ad.fx.wallet.dto.DepositRequest;
 import com.ad.fx.wallet.dto.WalletResponse;
